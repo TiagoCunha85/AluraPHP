@@ -3,51 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Serie; // Importe a classe Serie
 
 class SeriesController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $series = $this->getListaDeSeries();
-        $seriesOrdenadas = $this->getSeriesOrdenadas($series);
-
-        return view('series.index', compact('series', 'seriesOrdenadas'));
+        $series = DB::select('SELECT nome FROM series ORDER BY nome;');
+        return view('series.index', ['series' => $series]);
     }
 
-    private function getListaDeSeries(): array
-    {
-        return [
-            'Punisher',
-            'Lost',
-            'Grey\'s Anatomy',
-            'Breaking Bad',
-            'Game of Thrones',
-            'Friends',
-            'The Office',
-            'Stranger Things',
-            'Peaky Blinders',
-            'The Walking Dead',
-            'House of Cards',
-            'Money Heist (La Casa de Papel)',
-            'Narcos',
-            'Sherlock',
-            'The Crown',
-            'The Wire',
-            'Dexter',
-            'Suits',
-            'Prison Break',
-            'How I Met Your Mother'
-        ];
-    }
-
-    private function getSeriesOrdenadas(array $series): array
-    {
-        asort($series);
-        return $series;
-    }
     public function create()
     {
         return view('series.create');
     }
 
+    public function store(Request $request)
+    {
+        $nomeSerie = $request->input('nome');
+        $serie = new Serie();
+        $serie->nome = $nomeSerie;
+        $serie->save();
+
+        return redirect('/series/');
+    }
 }
